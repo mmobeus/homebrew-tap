@@ -1,0 +1,34 @@
+name: Update Formula
+
+on:
+  repository_dispatch:
+    types: [update-formula]
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - name: Update formula
+        run: |
+          VERSION="${{ github.event.client_payload.version }}"
+          VERSION="${VERSION#v}"
+          SHA_AMD64="${{ github.event.client_payload.sha256_amd64 }}"
+          SHA_ARM64="${{ github.event.client_payload.sha256_arm64 }}"
+
+          sed -i "s/version \".*\"/version \"${VERSION}\"/" Formula/luadata.rb
+          sed -i "0,/sha256 \".*\"/{s/sha256 \".*\"/sha256 \"${SHA_ARM64}\"/}" Formula/luadata.rb
+          sed -i "0,/sha256 \".*\"/! {0,/sha256 \".*\"/ s/sha256 \".*\"/sha256 \"${SHA_AMD64}\"/}" Formula/luadata.rb
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/luadata.rb
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "Update luadata to ${VERSION}"
+          git push
