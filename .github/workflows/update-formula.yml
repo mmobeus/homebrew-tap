@@ -7,18 +7,27 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
+      - name: Generate GitHub App token
+        id: app_token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.HOMEBREW_APP_ID }}
+          private-key: ${{ secrets.HOMEBREW_APP_PRIVATE_KEY }}
+
       - uses: actions/checkout@v6.0.2
+        with:
+          token: ${{ steps.app_token.outputs.token }}
 
       - name: Update formula
+        env:
+          VERSION: ${{ github.event.client_payload.version }}
+          SHA_AMD64: ${{ github.event.client_payload.sha256_amd64 }}
+          SHA_ARM64: ${{ github.event.client_payload.sha256_arm64 }}
         run: |
-          VERSION="${{ github.event.client_payload.version }}"
           VERSION="${VERSION#v}"
-          SHA_AMD64="${{ github.event.client_payload.sha256_amd64 }}"
-          SHA_ARM64="${{ github.event.client_payload.sha256_arm64 }}"
+          echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
 
           sed -i "s/version \".*\"/version \"${VERSION}\"/" Formula/luadata.rb
           sed -i "0,/sha256 \".*\"/{s/sha256 \".*\"/sha256 \"${SHA_ARM64}\"/}" Formula/luadata.rb
@@ -26,8 +35,8 @@ jobs:
 
       - name: Commit and push
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "mmobeus-homebrew-updater[bot]"
+          git config user.email "mmobeus-homebrew-updater[bot]@users.noreply.github.com"
           git add Formula/luadata.rb
           git diff --cached --quiet && echo "No changes" && exit 0
           git commit -m "Update luadata to ${VERSION}"
