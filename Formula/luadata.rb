@@ -1,16 +1,16 @@
 class Luadata < Formula
   desc "Parse Lua data files and convert to JSON"
   homepage "https://github.com/mmobeus/luadata"
-  version "0.1.14"
+  version "0.1.15"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/mmobeus/luadata/releases/download/v#{version}/luadata-darwin_arm64.tar.gz"
-      sha256 "ca87096520c4ba08f42d005038d43adcd5b46d130d70d2122742a187b2efab03"
+      sha256 "64d27329863033daf30dc4980584945edcbe02735a9d1b06d7511cbf6c8e54ea"
     elsif Hardware::CPU.intel?
       url "https://github.com/mmobeus/luadata/releases/download/v#{version}/luadata-darwin_amd64.tar.gz"
-      sha256 "8fc698bd9157fe4695baf2175fa63d23b2d13ec0480262e55d249fa9566f633a"
+      sha256 "7d88265b675b011d5d6612f4ea7c066fde7fcd79de3c76710c02f2a9e728edd0"
     end
   end
 
