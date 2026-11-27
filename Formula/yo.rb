@@ -2,6 +2,7 @@ class Yo < Formula
   desc "Start, find and tear down Claude Code sessions, each on its own git worktree"
   homepage "https://github.com/mmobeus/yo"
   version "0.1.0"
+  license "MIT"
 
   depends_on "jq"
 
