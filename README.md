@@ -7,6 +7,7 @@ Homebrew tap for [mmobeus](https://github.com/mmobeus) projects.
 ```
 brew tap mmobeus/tap
 brew install luadata
+brew install yo && yo setup
 ```
 
 ## Available formulas
@@ -14,6 +15,7 @@ brew install luadata
 | Formula | Description | Source repo |
 |---------|-------------|-------------|
 | [luadata](Formula/luadata.rb) | Parse Lua data files and convert to JSON | [mmobeus/luadata](https://github.com/mmobeus/luadata) |
+| [yo](Formula/yo.rb) | Start, find and tear down Claude Code sessions, each on its own git worktree | [mmobeus/yo](https://github.com/mmobeus/yo) |
 
 ## How it works
 
@@ -79,10 +81,14 @@ In a GitHub Actions workflow, the source repo mints a short-lived token using
   run: |
     gh api repos/mmobeus/homebrew-tap/dispatches \
       -f event_type=update-formula \
+      -f "client_payload[formula]=<name>" \
       -f "client_payload[version]=${VERSION}" \
       -f "client_payload[sha256_amd64]=${SHA_AMD64}" \
       -f "client_payload[sha256_arm64]=${SHA_ARM64}"
 ```
+
+`formula` names the file to update (`Formula/<formula>.rb`); it defaults to
+`luadata`, so luadata's release doesn't need it.
 
 The token is scoped to `homebrew-tap` only and expires after one hour.
 
@@ -94,5 +100,7 @@ The token is scoped to `homebrew-tap` only and expires after one hour.
    (see above for the pattern)
 3. Ensure the source repo has access to the `HOMEBREW_APP_ID` and
    `HOMEBREW_APP_PRIVATE_KEY` org secrets
-4. Update the [update-formula workflow](.github/workflows/update-formula.yml) if
-   the new formula needs different update logic, or keep it generic
+4. The [update-formula workflow](.github/workflows/update-formula.yml) updates
+   `Formula/<formula>.rb`, from the payload's `formula` (`luadata` when it's
+   left out). It sets `version`, then the first `sha256` to the arm64 one and
+   the second to the amd64 one, so list them in that order
