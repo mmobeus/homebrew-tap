@@ -1,7 +1,7 @@
 class Yo < Formula
   desc "Start, find and tear down Claude Code sessions, each on its own git worktree"
   homepage "https://github.com/mmobeus/yo"
-  version "0.1.0"
+  version "0.1.1"
   license "MIT"
 
   depends_on "jq"
@@ -10,10 +10,10 @@ class Yo < Formula
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/mmobeus/yo/releases/download/v#{version}/yo-darwin_arm64.tar.gz"
-      sha256 "18dfad6f42193d657875fc4a8ee8bf4e68b15c4785f53e8c810b203a6a5f183d"
+      sha256 "be73d3227881e48a14e3d654ed651d0aeb95b3dcfcc54c2a491a73ac96cb1ae9"
     elsif Hardware::CPU.intel?
       url "https://github.com/mmobeus/yo/releases/download/v#{version}/yo-darwin_amd64.tar.gz"
-      sha256 "79a0574727df4fbf18e9e11b46b9bdf470d4e9d4095dafc511dd8a771513f82a"
+      sha256 "335524b32acbb67070d1361e6320375ec68a0b9c16c724953cf60b75f8cf4c52"
     end
   end
 
