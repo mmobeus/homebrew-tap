@@ -22,22 +22,33 @@ jobs:
 
       - name: Update formula
         env:
+          FORMULA: ${{ github.event.client_payload.formula || 'luadata' }}
           VERSION: ${{ github.event.client_payload.version }}
           SHA_AMD64: ${{ github.event.client_payload.sha256_amd64 }}
           SHA_ARM64: ${{ github.event.client_payload.sha256_arm64 }}
         run: |
+          # The payload ends up in a path and in sed expressions: check it first.
+          [[ "$FORMULA" =~ ^[a-z0-9][a-z0-9-]*$ ]] || { echo "bad formula name: $FORMULA"; exit 1; }
+          FILE="Formula/${FORMULA}.rb"
+          [ -f "$FILE" ] || { echo "no $FILE"; exit 1; }
           VERSION="${VERSION#v}"
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "bad version: $VERSION"; exit 1; }
+          for sha in "$SHA_AMD64" "$SHA_ARM64"; do
+            [[ "$sha" =~ ^[0-9a-f]{64}$ ]] || { echo "bad sha256: $sha"; exit 1; }
+          done
+          echo "FORMULA=${FORMULA}" >> "$GITHUB_ENV"
           echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
 
-          sed -i "s/version \".*\"/version \"${VERSION}\"/" Formula/luadata.rb
-          sed -i "0,/sha256 \".*\"/{s/sha256 \".*\"/sha256 \"${SHA_ARM64}\"/}" Formula/luadata.rb
-          sed -i "0,/sha256 \".*\"/! {0,/sha256 \".*\"/ s/sha256 \".*\"/sha256 \"${SHA_AMD64}\"/}" Formula/luadata.rb
+          # Each formula lists its arm64 sha256 first, then its amd64 one.
+          sed -i "s/version \".*\"/version \"${VERSION}\"/" "$FILE"
+          sed -i "0,/sha256 \".*\"/{s/sha256 \".*\"/sha256 \"${SHA_ARM64}\"/}" "$FILE"
+          sed -i "0,/sha256 \".*\"/! {0,/sha256 \".*\"/ s/sha256 \".*\"/sha256 \"${SHA_AMD64}\"/}" "$FILE"
 
       - name: Commit and push
         run: |
           git config user.name "mmobeus-homebrew-updater[bot]"
           git config user.email "mmobeus-homebrew-updater[bot]@users.noreply.github.com"
-          git add Formula/luadata.rb
+          git add "Formula/${FORMULA}.rb"
           git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "Update luadata to ${VERSION}"
+          git commit -m "Update ${FORMULA} to ${VERSION}"
           git push
