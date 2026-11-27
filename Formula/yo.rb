@@ -10,10 +10,10 @@ class Yo < Formula
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/mmobeus/yo/releases/download/v#{version}/yo-darwin_arm64.tar.gz"
-      sha256 "0000000000000000000000000000000000000000000000000000000000000000"
+      sha256 "18dfad6f42193d657875fc4a8ee8bf4e68b15c4785f53e8c810b203a6a5f183d"
     elsif Hardware::CPU.intel?
       url "https://github.com/mmobeus/yo/releases/download/v#{version}/yo-darwin_amd64.tar.gz"
-      sha256 "0000000000000000000000000000000000000000000000000000000000000000"
+      sha256 "79a0574727df4fbf18e9e11b46b9bdf470d4e9d4095dafc511dd8a771513f82a"
     end
   end
 
